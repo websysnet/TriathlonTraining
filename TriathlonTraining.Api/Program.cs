@@ -17,6 +17,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.MapGet("/", () =>
+{
+    return "Bienvenidos a API TRIATHLON TRAININGS";
+
+}).WithName("Bienvenidos");
+
 app.MapTrainingEndpoints();
 
 app.Run();
