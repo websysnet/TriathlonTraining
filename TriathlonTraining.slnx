@@ -1,6 +1,7 @@
 <Solution>
   <Project Path="TriathlonTraining.Api/TriathlonTraining.Api.csproj" />
   <Project Path="TriathlonTraining.Application/TriathlonTraining.Application.csproj" />
+  <Project Path="TriathlonTraining.Blazor/TriathlonTraining.Blazor.csproj" />
   <Project Path="TriathlonTraining.Domain/TriathlonTraining.Domain.csproj" />
   <Project Path="TriathlonTraining.Infrastructure/TriathlonTraining.Infrastructure.csproj" />
   <Project Path="TriathlonTraining.Tests/TriathlonTraining.Tests.csproj" />

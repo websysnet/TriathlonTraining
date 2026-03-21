@@ -1,0 +1,116 @@
+@page "/"
+@inject TrainingApiService TrainingService
+@rendermode InteractiveServer
+
+<PageTitle>Triathlon Training</PageTitle>
+
+<div class="container-fluid py-4">
+    <header class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 mb-0">🏊‍♂️ Triathlon Training</h1>
+                <p class="text-muted">Gestiona tus entrenamientos de triatlon</p>
+            </div>
+            <button class="btn btn-success btn-lg" @onclick="ShowCreateForm">
+                <i class="bi bi-plus-circle"></i> Nuevo Entrenamiento
+            </button>
+        </div>
+    </header>
+
+    <TrainingList 
+        @ref="trainingList" 
+        OnEdit="EditTraining" 
+        OnDelete="ConfirmDelete" 
+        OnDataChanged="RefreshList" />
+
+    <TrainingForm 
+        IsVisible="showForm" 
+        TrainingToEdit="trainingToEdit" 
+        OnSaved="HandleSaved" 
+        OnClose="CloseForm" />
+
+    @if (trainingToDelete != null)
+    {
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Confirmar Eliminacion</h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CancelDelete"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Estas seguro de eliminar el entrenamiento "<strong>@trainingToDelete.Title</strong>"?</p>
+                        <p class="text-muted small">Esta accion no se puede deshacer.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" @onclick="CancelDelete">Cancelar</button>
+                        <button class="btn btn-danger" @onclick="ExecuteDelete">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private TrainingList? trainingList;
+    private bool showForm = false;
+    private TrainingDto? trainingToEdit = null;
+    private TrainingDto? trainingToDelete = null;
+
+    private void ShowCreateForm()
+    {
+        trainingToEdit = null;
+        showForm = true;
+    }
+
+    private void EditTraining(TrainingDto training)
+    {
+        trainingToEdit = training;
+        showForm = true;
+    }
+
+    private void CloseForm()
+    {
+        showForm = false;
+        trainingToEdit = null;
+    }
+
+    private async Task HandleSaved()
+    {
+        if (trainingList != null)
+        {
+            await trainingList.LoadTrainings();
+        }
+    }
+
+    private async Task RefreshList()
+    {
+        if (trainingList != null)
+        {
+            await trainingList.LoadTrainings();
+        }
+    }
+
+    private void ConfirmDelete(TrainingDto training)
+    {
+        trainingToDelete = training;
+    }
+
+    private void CancelDelete()
+    {
+        trainingToDelete = null;
+    }
+
+    private async Task ExecuteDelete()
+    {
+        if (trainingToDelete != null)
+        {
+            await TrainingService.DeleteAsync(trainingToDelete.Id);
+            trainingToDelete = null;
+            await RefreshList();
+        }
+    }
+}

@@ -1,6 +1,6 @@
-# 🏊‍♂️ Triathlon Training API
+# 🏊‍♂️ Triathlon Training
 
-API Minimal para gestionar entrenamientos de triatlón con Clean Architecture y .NET 10.
+Aplicación completa para gestionar entrenamientos de triatlón con Clean Architecture y .NET 10.
 
 ## 📋 Características
 
@@ -9,16 +9,18 @@ API Minimal para gestionar entrenamientos de triatlón con Clean Architecture y 
 - 💾 Almacenamiento en memoria (ideal para testing)
 - 🧪 Tests unitarios con Moq
 - 📐 Clean Architecture
+- 🌐 Interfaz web con Blazor
 
 ## 🏗️ Arquitectura
 
 ```
 TriathlonTraining/
-├── TriathlonTraining.Api/          # API Minimal
+├── TriathlonTraining.Api/           # API Minimal (.NET 10)
+├── TriathlonTraining.Blazor/       # Aplicación Blazor Web
 ├── TriathlonTraining.Application/  # DTOs, Services, Interfaces
 ├── TriathlonTraining.Domain/       # Entities, Enums, Repository Interfaces
 ├── TriathlonTraining.Infrastructure/# Repositorio en memoria
-└── TriathlonTraining.Tests/        # Tests unitarios
+└── TriathlonTraining.Tests/       # Tests unitarios
 ```
 
 ## 🚀 Inicio Rápido
@@ -27,18 +29,45 @@ TriathlonTraining/
 # Restaurar paquetes
 dotnet restore
 
-# Compilar
+# Compilar todo
 dotnet build
 
 # Ejecutar tests
 dotnet test
 
-# Iniciar API
-cd TriathlonTraining.Api
-dotnet run
+# Iniciar API (puerto 5239)
+dotnet run --project TriathlonTraining.Api
+
+# En otra terminal, iniciar Blazor (puerto 5131)
+dotnet run --project TriathlonTraining.Blazor
 ```
 
-## 📡 Endpoints
+## 🌐 Aplicación Blazor
+
+Interfaz web moderna para gestionar entrenamientos.
+
+**URL:** http://localhost:5131
+
+### Funcionalidades
+- 📋 Listado de entrenamientos con tarjetas
+- 🔍 Filtros por deporte y fecha
+- ➕ Crear nuevos entrenamientos
+- ✏️ Editar entrenamientos existentes
+- 🗑️ Eliminar con confirmación
+- 📱 Diseño responsive
+
+### Deportes
+| ID | Emoji | Deporte |
+|----|-------|---------|
+| 1 | 🏊 | Natación |
+| 2 | 🚴 | Ciclismo |
+| 3 | 🏃 | Atletismo |
+
+## 📡 API REST
+
+**URL:** http://localhost:5239
+
+### Endpoints
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
@@ -50,15 +79,7 @@ dotnet run
 | `PUT` | `/api/trainings/{id}` | Actualizar entrenamiento |
 | `DELETE` | `/api/trainings/{id}` | Eliminar entrenamiento |
 
-## 🏊 Deportes Disponibles
-
-| ID | Deporte |
-|----|---------|
-| 1 | Natación |
-| 2 | Ciclismo |
-| 3 | Atletismo |
-
-## 📝 Ejemplo de Request
+### Ejemplo de Request
 
 ```bash
 # Crear entrenamiento
@@ -77,9 +98,13 @@ curl -X POST http://localhost:5239/api/trainings \
 
 ## 🔧 Tecnologías
 
-- [.NET 10](https://dotnet.microsoft.com/)
-- [ASP.NET Core Minimal APIs](https://learn.microsoft.com/aspnet/core/fundamentals/minimal-apis)
-- [Moq](https://github.com/moq/moq) - Para tests
+| Componente | Tecnología |
+|------------|------------|
+| API | ASP.NET Core Minimal APIs |
+| Frontend | Blazor Web |
+| Testing | xUnit + Moq |
+| UI | Bootstrap 5 + Bootstrap Icons |
+| Framework | .NET 10 |
 
 ## 📂 Estructura de un Entrenamiento
 
@@ -95,6 +120,20 @@ curl -X POST http://localhost:5239/api/trainings \
 | `averageHeartRate` | int | Frecuencia cardíaca promedio |
 | `createdAt` | DateTime | Fecha de creación |
 | `updatedAt` | DateTime? | Fecha de actualización |
+
+## 🧪 Tests
+
+```bash
+# Ejecutar todos los tests
+dotnet test
+
+# Ver cobertura
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+**Tests incluidos:**
+- TrainingService: 9 tests
+- InMemoryTrainingRepository: 4 tests
 
 ## 📜 Licencia
 

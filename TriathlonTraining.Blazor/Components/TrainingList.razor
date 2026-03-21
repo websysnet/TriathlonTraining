@@ -1,0 +1,147 @@
+@inject TrainingApiService TrainingService
+@rendermode InteractiveServer
+
+<div class="mb-4">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <select class="form-select" @bind="filterSport">
+                <option value="0">Todos los deportes</option>
+                <option value="1">Natacion</option>
+                <option value="2">Ciclismo</option>
+                <option value="3">Atletismo</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <input type="date" class="form-control" @bind="filterDate" @bind:format="yyyy-MM-dd" />
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100" @onclick="ApplyFilters">
+                <i class="bi bi-search"></i> Filtrar
+            </button>
+        </div>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else if (trainings.Any())
+{
+    <div class="row g-4">
+        @foreach (var training in trainings)
+        {
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 training-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="badge @GetSportBadgeClass(training.SportType)">
+                            @GetSportEmoji(training.SportType) @training.SportTypeName
+                        </span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => OnEdit.InvokeAsync(training)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => OnDelete.InvokeAsync(training)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@training.Title</h5>
+                        <p class="card-text text-muted small">@training.Description</p>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <small class="text-muted">Fecha</small>
+                                <div>@training.TrainingDate.ToString("dd/MM/yyyy")</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Duracion</small>
+                                <div>@training.Duration.ToString(@"hh\:mm")</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Distancia</small>
+                                <div>@training.DistanceKm km</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">FC Promedio</small>
+                                <div>@training.AverageHeartRate bpm</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> No hay entrenamientos registrados
+    </div>
+}
+
+@code {
+    [Parameter]
+    public EventCallback<TrainingDto> OnEdit { get; set; }
+    
+    [Parameter]
+    public EventCallback<TrainingDto> OnDelete { get; set; }
+
+    [Parameter]
+    public EventCallback OnDataChanged { get; set; }
+
+    private List<TrainingDto> trainings = [];
+    private bool isLoading = true;
+    private int filterSport = 0;
+    private DateTime? filterDate = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTrainings();
+    }
+
+    public async Task LoadTrainings()
+    {
+        isLoading = true;
+        trainings = (await TrainingService.GetAllAsync()).ToList();
+        isLoading = false;
+    }
+
+    private async Task ApplyFilters()
+    {
+        isLoading = true;
+        if (filterSport > 0)
+        {
+            trainings = (await TrainingService.GetBySportTypeAsync(filterSport)).ToList();
+        }
+        else if (filterDate.HasValue)
+        {
+            trainings = (await TrainingService.GetByDateAsync(filterDate.Value)).ToList();
+        }
+        else
+        {
+            trainings = (await TrainingService.GetAllAsync()).ToList();
+        }
+        isLoading = false;
+    }
+
+    private static string GetSportBadgeClass(int sportType) => sportType switch
+    {
+        1 => "bg-primary",
+        2 => "bg-success",
+        3 => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+
+    private static string GetSportEmoji(int sportType) => sportType switch
+    {
+        1 => "🏊",
+        2 => "🚴",
+        3 => "🏃",
+        _ => "❓"
+    };
+}

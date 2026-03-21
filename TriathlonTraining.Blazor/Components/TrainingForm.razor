@@ -1,0 +1,154 @@
+@inject TrainingApiService TrainingService
+@rendermode InteractiveServer
+
+<div class="modal fade @(IsVisible ? "show d-block" : "")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-@GetHeaderColor() text-white">
+                <h5 class="modal-title">
+                    @(TrainingToEdit == null ? "Nuevo Entrenamiento" : "Editar Entrenamiento")
+                </h5>
+                <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@formModel" OnValidSubmit="HandleSubmit">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Titulo *</label>
+                            <InputText class="form-control" @bind-Value="formModel.Title" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Deporte *</label>
+                            <InputSelect class="form-select" @bind-Value="formModel.SportType">
+                                <option value="1">🏊 Natacion</option>
+                                <option value="2">🚴 Ciclismo</option>
+                                <option value="3">🏃 Atletismo</option>
+                            </InputSelect>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha *</label>
+                            <InputDate class="form-control" @bind-Value="formModel.TrainingDate" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Distancia (km) *</label>
+                            <InputNumber class="form-control" @bind-Value="formModel.DistanceKm" step="0.1" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Duracion (horas:minutos) *</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <InputNumber class="form-control" @bind-Value="hours" placeholder="Horas" />
+                                </div>
+                                <div class="col-6">
+                                    <InputNumber class="form-control" @bind-Value="minutes" placeholder="Minutos" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Frecuencia Cardiaca (bpm) *</label>
+                            <InputNumber class="form-control" @bind-Value="formModel.AverageHeartRate" />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Descripcion</label>
+                            <InputTextArea class="form-control" @bind-Value="formModel.Description" rows="3" />
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" @onclick="Close">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            @(TrainingToEdit == null ? "Crear" : "Guardar Cambios")
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public TrainingDto? TrainingToEdit { get; set; }
+
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private CreateTrainingDto formModel = new();
+    private int hours = 0;
+    private int minutes = 0;
+
+    protected override void OnParametersSet()
+    {
+        if (TrainingToEdit != null)
+        {
+            formModel = new CreateTrainingDto
+            {
+                Title = TrainingToEdit.Title,
+                SportType = TrainingToEdit.SportType,
+                TrainingDate = TrainingToEdit.TrainingDate,
+                DistanceKm = TrainingToEdit.DistanceKm,
+                Duration = TrainingToEdit.Duration,
+                Description = TrainingToEdit.Description,
+                AverageHeartRate = TrainingToEdit.AverageHeartRate
+            };
+            hours = (int)TrainingToEdit.Duration.TotalHours;
+            minutes = TrainingToEdit.Duration.Minutes;
+        }
+        else
+        {
+            formModel = new CreateTrainingDto
+            {
+                TrainingDate = DateTime.Today,
+                SportType = 1
+            };
+            hours = 0;
+            minutes = 30;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        formModel.Duration = TimeSpan.FromHours(hours) + TimeSpan.FromMinutes(minutes);
+
+        if (TrainingToEdit == null)
+        {
+            await TrainingService.CreateAsync(formModel);
+        }
+        else
+        {
+            var updateDto = new UpdateTrainingDto
+            {
+                Title = formModel.Title,
+                SportType = formModel.SportType,
+                TrainingDate = formModel.TrainingDate,
+                DistanceKm = formModel.DistanceKm,
+                Duration = formModel.Duration,
+                Description = formModel.Description,
+                AverageHeartRate = formModel.AverageHeartRate
+            };
+            await TrainingService.UpdateAsync(TrainingToEdit.Id, updateDto);
+        }
+
+        await OnSaved.InvokeAsync();
+        Close();
+    }
+
+    private void Close()
+    {
+        OnClose.InvokeAsync();
+    }
+
+    private string GetHeaderColor() => TrainingToEdit == null ? "success" : "primary";
+}
