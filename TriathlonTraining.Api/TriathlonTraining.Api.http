@@ -1,0 +1,6 @@
+@TriathlonTraining.Api_HostAddress = http://localhost:5239
+
+GET {{TriathlonTraining.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
