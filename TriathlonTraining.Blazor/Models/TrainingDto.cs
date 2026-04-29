@@ -18,6 +18,7 @@ public class TrainingDto
         1 => "Natacion",
         2 => "Ciclismo",
         3 => "Atletismo",
+        4 => "Gimnasio",
         _ => "Desconocido"
     };
 }

@@ -43,7 +43,7 @@ public static class TrainingEndpoints
             return Results.Ok(trainings);
         })
         .WithName("GetTrainingsBySport")
-        .WithDescription("Get training sessions by sport type (1=Natacion, 2=Ciclismo, 3=Atletismo)");
+        .WithDescription("Get training sessions by sport type (1=Natacion, 2=Ciclismo, 3=Atletismo, 4=Gimnasio)");
 
         group.MapPost("/", async (CreateTrainingDto dto, ITrainingService service) =>
         {
