@@ -22,8 +22,9 @@
                             <label class="form-label">Deporte *</label>
                             <InputSelect class="form-select" @bind-Value="formModel.SportType">
                                 <option value="1">🏊 Natacion</option>
-                                <option value="2">🚴 Ciclismo</option>
+                                <option value="2" selected>🚴 Ciclismo</option>
                                 <option value="3">🏃 Atletismo</option>
+                                <option value="4">🏋️ Gimnasio</option>
                             </InputSelect>
                         </div>
 
@@ -51,7 +52,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Frecuencia Cardiaca (bpm) *</label>
-                            <InputNumber class="form-control" @bind-Value="formModel.AverageHeartRate" />
+                            <InputNumber class="form-control" type="number" min="0" max="220" @bind-Value="formModel.AverageHeartRate" />
                         </div>
 
                         <div class="col-12">
