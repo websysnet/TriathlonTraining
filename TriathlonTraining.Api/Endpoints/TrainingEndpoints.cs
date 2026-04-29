@@ -1,6 +1,7 @@
 using TriathlonTraining.Application.DTOs;
 using TriathlonTraining.Application.Interfaces;
 using TriathlonTraining.Domain.Enums;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TriathlonTraining.Api.Endpoints;
 
@@ -34,16 +35,27 @@ public static class TrainingEndpoints
         .WithName("GetTrainingsByDate")
         .WithDescription("Get training sessions by date");
 
-        group.MapGet("/by-sport/{sportType:int}", async (int sportType, ITrainingService service) =>
-        {
-            if (!Enum.IsDefined(typeof(SportType), sportType))
-                return Results.BadRequest("Invalid sport type");
+group.MapGet("/by-sport/{sportType:int}", async (int sportType, ITrainingService service) =>
+{
+    if (!Enum.IsDefined(typeof(SportType), sportType))
+        return Results.BadRequest("Invalid sport type");
 
-            var trainings = await service.GetBySportTypeAsync((SportType)sportType);
-            return Results.Ok(trainings);
-        })
-        .WithName("GetTrainingsBySport")
-        .WithDescription("Get training sessions by sport type (1=Natacion, 2=Ciclismo, 3=Atletismo, 4=Gimnasio)");
+    var trainings = await service.GetBySportTypeAsync((SportType)sportType);
+    return Results.Ok(trainings);
+})
+.WithName("GetTrainingsBySport")
+.WithDescription("Get training sessions by sport type (1=Natacion, 2=Ciclismo, 3=Atletismo, 4=Gimnasio)");
+
+group.MapGet("/by-date-range", async ([FromQuery] DateTime startDate, [FromQuery] DateTime endDate, ITrainingService service) =>
+{
+    if (startDate > endDate)
+        return Results.BadRequest("Start date must be before end date");
+
+    var trainings = await service.GetByDateRangeAsync(startDate, endDate);
+    return Results.Ok(trainings);
+})
+.WithName("GetTrainingsByDateRange")
+.WithDescription("Get training sessions by date range (startDate and endDate query parameters)");
 
         group.MapPost("/", async (CreateTrainingDto dto, ITrainingService service) =>
         {

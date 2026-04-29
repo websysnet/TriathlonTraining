@@ -9,6 +9,7 @@ public interface ITrainingService
     Task<IEnumerable<TrainingDto>> GetAllAsync();
     Task<IEnumerable<TrainingDto>> GetByDateAsync(DateTime date);
     Task<IEnumerable<TrainingDto>> GetBySportTypeAsync(SportType sportType);
+    Task<IEnumerable<TrainingDto>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
     Task<TrainingDto> CreateAsync(CreateTrainingDto dto);
     Task<TrainingDto?> UpdateAsync(Guid id, UpdateTrainingDto dto);
     Task<bool> DeleteAsync(Guid id);

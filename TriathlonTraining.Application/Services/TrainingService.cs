@@ -33,11 +33,17 @@ public class TrainingService : ITrainingService
         return trainings.Select(MapToDto);
     }
 
-    public async Task<IEnumerable<TrainingDto>> GetBySportTypeAsync(SportType sportType)
-    {
-        var trainings = await _repository.GetBySportTypeAsync(sportType);
-        return trainings.Select(MapToDto);
-    }
+public async Task<IEnumerable<TrainingDto>> GetBySportTypeAsync(SportType sportType)
+{
+    var trainings = await _repository.GetBySportTypeAsync(sportType);
+    return trainings.Select(MapToDto);
+}
+
+public async Task<IEnumerable<TrainingDto>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)
+{
+    var trainings = await _repository.GetByDateRangeAsync(startDate, endDate);
+    return trainings.Select(MapToDto);
+}
 
     public async Task<TrainingDto> CreateAsync(CreateTrainingDto dto)
     {

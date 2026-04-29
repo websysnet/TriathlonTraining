@@ -3,7 +3,7 @@
 
 <div class="mb-4">
     <div class="row g-3">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <select class="form-select" @bind="filterSport">
                 <option value="0">Todos los deportes</option>
                 <option value="1">Natacion</option>
@@ -12,12 +12,31 @@
                 <option value="4">Gimnasio</option>
             </select>
         </div>
-        <div class="col-md-4">
-            <input type="date" class="form-control" @bind="filterDate" @bind:format="yyyy-MM-dd" />
+        <div class="col-md-3">
+            <input type="date" class="form-control" @bind="filterDate" @bind:format="yyyy-MM-dd" placeholder="Fecha especifica" />
         </div>
-        <div class="col-md-4">
-            <button class="btn btn-primary w-100" @onclick="ApplyFilters">
+        <div class="col-md-3">
+            <div class="input-group">
+                <input type="date" class="form-control" @bind="filterStartDate" @bind:format="yyyy-MM-dd" placeholder="Desde" />
+                <input type="date" class="form-control" @bind="filterEndDate" @bind:format="yyyy-MM-dd" placeholder="Hasta" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" @bind="filterWeek">
+                <option value="0">Sin filtro semana</option>
+                <option value="1">Esta semana</option>
+                <option value="2">Semana pasada</option>
+                <option value="3">Ultimas 4 semanas</option>
+            </select>
+        </div>
+    </div>
+    <div class="row g-3 mt-2">
+        <div class="col-md-12">
+            <button class="btn btn-primary me-2" @onclick="ApplyFilters">
                 <i class="bi bi-search"></i> Filtrar
+            </button>
+            <button class="btn btn-secondary" @onclick="ClearFilters">
+                <i class="bi bi-x-circle"></i> Limpiar filtros
             </button>
         </div>
     </div>
@@ -99,6 +118,9 @@ else
     private bool isLoading = true;
     private int filterSport = 0;
     private DateTime? filterDate = null;
+    private DateTime? filterStartDate = null;
+    private DateTime? filterEndDate = null;
+    private int filterWeek = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,9 +137,19 @@ else
     private async Task ApplyFilters()
     {
         isLoading = true;
+        
         if (filterSport > 0)
         {
             trainings = (await TrainingService.GetBySportTypeAsync(filterSport)).ToList();
+        }
+        else if (filterWeek > 0)
+        {
+            var (startDate, endDate) = GetWeekDateRange(filterWeek);
+            trainings = (await TrainingService.GetByDateRangeAsync(startDate, endDate)).ToList();
+        }
+        else if (filterStartDate.HasValue && filterEndDate.HasValue)
+        {
+            trainings = (await TrainingService.GetByDateRangeAsync(filterStartDate.Value, filterEndDate.Value)).ToList();
         }
         else if (filterDate.HasValue)
         {
@@ -127,7 +159,31 @@ else
         {
             trainings = (await TrainingService.GetAllAsync()).ToList();
         }
+        
         isLoading = false;
+    }
+
+    private async Task ClearFilters()
+    {
+        filterSport = 0;
+        filterDate = null;
+        filterStartDate = null;
+        filterEndDate = null;
+        filterWeek = 0;
+        await LoadTrainings();
+    }
+
+    private static (DateTime startDate, DateTime endDate) GetWeekDateRange(int weekOption)
+    {
+        var today = DateTime.UtcNow.Date;
+        
+        return weekOption switch
+        {
+            1 => (today.AddDays(-(int)today.DayOfWeek), today), // Esta semana
+            2 => (today.AddDays(-(int)today.DayOfWeek - 7), today.AddDays(-(int)today.DayOfWeek - 1)), // Semana pasada
+            3 => (today.AddDays(-28), today), // Ultimas 4 semanas
+            _ => (today, today)
+        };
     }
 
     private static string GetSportBadgeClass(int sportType) => sportType switch

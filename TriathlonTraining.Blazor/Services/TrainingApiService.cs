@@ -29,10 +29,15 @@ public class TrainingApiService
         return await _httpClient.GetFromJsonAsync<IEnumerable<TrainingDto>>($"api/trainings/by-date/{date:yyyy-MM-dd}") ?? [];
     }
 
-    public async Task<IEnumerable<TrainingDto>> GetBySportTypeAsync(int sportType)
-    {
-        return await _httpClient.GetFromJsonAsync<IEnumerable<TrainingDto>>($"api/trainings/by-sport/{sportType}") ?? [];
-    }
+public async Task<IEnumerable<TrainingDto>> GetBySportTypeAsync(int sportType)
+{
+    return await _httpClient.GetFromJsonAsync<IEnumerable<TrainingDto>>($"api/trainings/by-sport/{sportType}") ?? [];
+}
+
+public async Task<IEnumerable<TrainingDto>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)
+{
+    return await _httpClient.GetFromJsonAsync<IEnumerable<TrainingDto>>($"api/trainings/by-date-range?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}") ?? [];
+}
 
     public async Task<TrainingDto?> CreateAsync(CreateTrainingDto dto)
     {
